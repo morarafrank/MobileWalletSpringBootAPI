@@ -7,6 +7,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -39,47 +40,44 @@ public class TransactionController {
 
 	@Autowired
 	private TransactionRepository transactionRepository;
+
 	@Autowired
 	private AccountRepository accountRepository;
+
 	@GetMapping("/")
 	public List<Transaction> getAllTransaction() {
 		return transactionRepository.findAll();
 	}
-	
 
 	/**
 	 * Get Last 100 Transactions By CustomerId
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 * @throws ResourceNotFoundException
 	 */
-	@PostMapping(value = "/last-100-transactions", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE},produces = { MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<?> getLast100TransactionsByCustomerId(@RequestBody String request)
-			throws ResourceNotFoundException {
+	@PostMapping(value = "/last-100-transactions", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> getLast100TransactionsByCustomerId(@RequestBody String request) throws ResourceNotFoundException {
 		try {
 			final JsonObject req = gson.fromJson(request, JsonObject.class);
 			String customerId = req.get("customerId").getAsString();
 
-			// TODO : Add login here to get Last 100 Transactions By CustomerId
-			List<Transaction> last100Transactions = null;
+			Pageable pageable = PageRequest.of(0, 100, Sort.by("transactionDate").descending());
+			Page<List<Transaction>> last100Transactions = transactionRepository.findTransactionsByCustomerId(customerId, pageable);
+
 
 			return ResponseEntity.ok().body(gson.toJson(last100Transactions));
 		} catch (Exception ex) {
 			logger.info("Exception {}", AppUtilities.getExceptionStacktrace(ex));
 
 			return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
 		}
 	}
 
-	@PostMapping(value = "/send-money", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE},produces = { MediaType.APPLICATION_JSON_VALUE})
+	@PostMapping(value = "/send-money", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> doSendMoneyTransaction(@RequestBody String request) throws ResourceNotFoundException {
 		try {
-			
-	        Random rand = new Random(); 
-
-	        
+			Random rand = new Random();
 			JsonObject response = new JsonObject();
 
 			final JsonObject balanceRequest = gson.fromJson(request, JsonObject.class);
@@ -94,11 +92,8 @@ public class TransactionController {
 			Account beneficiaryAccount = accountRepository.findAccountByAccountNo(accountTo)
 					.orElseThrow(() -> new ResourceNotFoundException("Account " + accountTo + " NOT found for this"));
 
-  
-
-	        
-			String debitTransactionId = "TRN"+rand.nextInt(100000)+1000;
-			String creditTransactionId = "TRN"+rand.nextInt(100000)+1001;
+			String debitTransactionId = "TRN" + rand.nextInt(100000) + 1000;
+			String creditTransactionId = "TRN" + rand.nextInt(100000) + 1001;
 
 			// Debit
 			Transaction transactionDebit = new Transaction();
@@ -124,24 +119,22 @@ public class TransactionController {
 			response.addProperty("response_status", true);
 			response.addProperty("response_message", "Transaction Successful");
 
-//			return ResponseEntity.ok().body(gson.toJson(response));
 			return ResponseEntity.status(200).body(gson.toJson(response));
 		} catch (Exception ex) {
 			logger.info("Exception {}", AppUtilities.getExceptionStacktrace(ex));
 
 			return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
 		}
 	}
 
 	/**
 	 * Should return last 5 transactions from the database
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 * @throws ResourceNotFoundException
 	 */
-	@PostMapping(value = "/mini-statement", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE},produces = { MediaType.APPLICATION_JSON_VALUE})
+	@PostMapping(value = "/mini-statement", consumes = { MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getMiniStatementByCustomerIdAndAccountNo(@RequestBody String request)
 			throws ResourceNotFoundException {
 		try {
@@ -149,22 +142,16 @@ public class TransactionController {
 			String customerId = balanceRequest.get("customerId").getAsString();
 			String accountNo = balanceRequest.get("accountNo").getAsString();
 
-			// FIXME: Should return last 5 transactions from the database
-//			List<Transaction> miniStatement = transactionRepository
-//					.getMiniStatementUsingCustomerIdAndAccountNo(customerId, accountNo);
-
+			// Fetch last 5 transactions from the database
 			Pageable pageable = PageRequest.of(0, 5, Sort.by("transactionDate").descending());
-			Optional<List<Transaction>> miniStatement = transactionRepository
-					.getMiniStatementUsingCustomerIdAndAccountNo(customerId, accountNo, pageable);
-
+			List<Transaction> miniStatement = transactionRepository.getMiniStatementUsingCustomerIdAndAccountNo(customerId, accountNo, pageable)
+					.orElseThrow(() -> new ResourceNotFoundException("No transactions found for customerId: " + customerId + " and accountNo: " + accountNo));
 
 			return ResponseEntity.ok().body(gson.toJson(miniStatement));
 		} catch (Exception ex) {
 			logger.info("Exception {}", AppUtilities.getExceptionStacktrace(ex));
 
 			return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
 		}
 	}
-
 }

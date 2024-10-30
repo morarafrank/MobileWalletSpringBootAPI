@@ -1,6 +1,7 @@
 package com.comulynx.wallet.rest.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,6 @@ public class AccountController {
 		return accountRepository.findAll();
 	}
 
-	
 	@PostMapping("/balance")
 	public ResponseEntity<?> getAccountBalanceByCustomerIdAndAccountNo(@RequestBody String request)
 			throws ResourceNotFoundException {
@@ -46,19 +46,25 @@ public class AccountController {
 
 			final JsonObject balanceRequest = gson.fromJson(request, JsonObject.class);
 			String customerId = balanceRequest.get("customerId").getAsString();
+			String accountNo = balanceRequest.get("accountNo").getAsString();
 
+			// Find Account balance by CustomerId and AccountNo
+			Optional<Account> accountOpt = accountRepository.findAccountByCustomerIdAndAccountNo(customerId, accountNo);
 
-			// TODO : Add logic to find Account balance by CustomerId
-			Account account = null;
+			if (!accountOpt.isPresent()) {
+				throw new ResourceNotFoundException("Account not found for customerId: " + customerId + " and accountNo: " + accountNo);
+			}
 
+			Account account = accountOpt.get();
 			response.addProperty("balance", account.getBalance());
 			response.addProperty("accountNo", account.getAccountNo());
+
 			return ResponseEntity.ok().body(gson.toJson(response));
 		} catch (Exception ex) {
-			logger.info("Exception {}", AppUtilities.getExceptionStacktrace(ex));
+			logger.error("Exception {}", AppUtilities.getExceptionStacktrace(ex));
 
 			return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
 		}
 	}
 }
+

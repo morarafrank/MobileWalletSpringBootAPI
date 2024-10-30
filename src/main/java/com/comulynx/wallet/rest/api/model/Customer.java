@@ -30,6 +30,10 @@ public class Customer {
 		return customerId;
 	}
 
+	public String getCustomerName() {
+		return firstName + " " + lastName;
+	}
+
 	public void setCustomerId(String customerId) {
 		this.customerId = customerId;
 	}
