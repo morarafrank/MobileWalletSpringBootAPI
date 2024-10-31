@@ -39,7 +39,7 @@ public class CustomerController {
 	private CustomerRepository customerRepository;
 	@Autowired
 	private AccountRepository accountRepository;
-	@GetMapping(value = "/api/v1/customers/login", produces = "application/json")
+	@GetMapping("/")
 	public List<Customer> getAllCustomers() {
 		return customerRepository.findAll();
 	}
@@ -52,8 +52,7 @@ public class CustomerController {
 	 * @param request
 	 * @return
 	 */
-//	@PostMapping("/login")
-	@PostMapping(value = "/login", produces = "application/json")
+	@PostMapping("/login")
 	public ResponseEntity<?> customerLogin(@RequestBody String request) {
 		try {
 			JsonObject response = new JsonObject();

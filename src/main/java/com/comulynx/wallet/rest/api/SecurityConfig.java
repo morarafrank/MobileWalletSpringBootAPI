@@ -14,17 +14,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/springboot-rest-api/h2-console/**").permitAll()
-                .anyRequest().authenticated()
-                .and().formLogin()
-                .and().csrf().disable();
-        http.headers().frameOptions().disable();
+                .anyRequest().permitAll()
+                .and()
+                .csrf().disable();
     }
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//    // Disable security
-//    http.authorizeRequests().anyRequest().permitAll()
-//            .and().csrf().disable();
-//    }
+
 }
 
