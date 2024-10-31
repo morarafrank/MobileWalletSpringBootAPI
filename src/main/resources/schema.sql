@@ -1,4 +1,4 @@
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
     pin VARCHAR(50),
     first_name VARCHAR(50),
     last_name VARCHAR(50),
@@ -6,7 +6,7 @@ CREATE TABLE customers (
     customer_id VARCHAR(50) PRIMARY KEY
 );
 
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
     customer_id VARCHAR(50),
     account_no VARCHAR(50) PRIMARY KEY,
     balance DECIMAL(15, 2),

@@ -39,7 +39,7 @@ public class CustomerController {
 	private CustomerRepository customerRepository;
 	@Autowired
 	private AccountRepository accountRepository;
-	@GetMapping("/")
+	@GetMapping(value = "/api/v1/customers/login", produces = "application/json")
 	public List<Customer> getAllCustomers() {
 		return customerRepository.findAll();
 	}
@@ -52,7 +52,8 @@ public class CustomerController {
 	 * @param request
 	 * @return
 	 */
-	@PostMapping("/login")
+//	@PostMapping("/login")
+	@PostMapping(value = "/login", produces = "application/json")
 	public ResponseEntity<?> customerLogin(@RequestBody String request) {
 		try {
 			JsonObject response = new JsonObject();
@@ -81,7 +82,9 @@ public class CustomerController {
 			response.addProperty("account", accountRepository.findAccountByCustomerId(customerId)
 					.map(Account::getAccountNo).orElse("No account found"));
 
-			return ResponseEntity.status(200).body(HttpStatus.OK);
+//			return ResponseEntity.status(200).body(HttpStatus.OK);
+			return ResponseEntity.ok(response.toString());
+
 		} catch (Exception ex) {
 			logger.info("Exception {}", AppUtilities.getExceptionStacktrace(ex));
 			return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
