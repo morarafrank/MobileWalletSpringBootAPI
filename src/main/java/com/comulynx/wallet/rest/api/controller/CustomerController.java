@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.validation.Valid;
-
 import com.comulynx.wallet.rest.api.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

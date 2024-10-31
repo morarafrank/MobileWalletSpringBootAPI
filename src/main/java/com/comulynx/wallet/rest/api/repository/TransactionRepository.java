@@ -17,17 +17,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
 //	Optional<List<Transaction>> findTransactionsByCustomerId(String customerId);
 
+	Page<Transaction> findByCustomerId(String customerId, Pageable pageable);
+
 	// paged version of the above method with 100 transactions.
-	@Query("SELECT t FROM Transaction t WHERE t.customerId = :customerId ORDER BY t.transactionDate DESC")
-	Page<List<Transaction>> findTransactionsByCustomerId(@Param("customerId") String customerId, Pageable pageable);
+//	@Query("SELECT t FROM Transaction t WHERE t.customerId = :customerId ORDER BY t.transactionDate DESC")
+//	Page<Transaction> findTransactionsByCustomerId(@Param("customerId") String customerId, Pageable pageable);
 
 	Optional<List<Transaction>> findTransactionsByTransactionId(String transactionId);
 
 	Optional<List<Transaction>> findTransactionsByCustomerIdOrTransactionId(String transactionId, String customerId);
 
 	// Fetch the last 5 transactions using Named Parameters
-	@Query("SELECT t FROM Transaction t WHERE t.customerId = :customerId AND t.accountNo = :accountNo ORDER BY t.transactionDate DESC")
-	Optional<List<Transaction>> getMiniStatementUsingCustomerIdAndAccountNo(
+	@Query("SELECT t FROM Transaction t WHERE t.customerId = :customerId AND t.accountNo = :accountNo ORDER BY t.transactionId DESC")
+	Page<Transaction> getMiniStatementUsingCustomerIdAndAccountNo(
 			@Param("customerId") String customerId,
 			@Param("accountNo") String accountNo,
 			Pageable pageable);

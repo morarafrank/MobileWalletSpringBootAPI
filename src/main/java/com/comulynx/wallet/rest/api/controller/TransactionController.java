@@ -63,7 +63,8 @@ public class TransactionController {
 			String customerId = req.get("customerId").getAsString();
 
 			Pageable pageable = PageRequest.of(0, 100, Sort.by("transactionDate").descending());
-			Page<List<Transaction>> last100Transactions = transactionRepository.findTransactionsByCustomerId(customerId, pageable);
+//			Page<Transaction> last100Transactions = transactionRepository.findTransactionsByCustomerId(customerId, pageable);
+			Page<Transaction> last100Transactions = transactionRepository.findByCustomerId(customerId, pageable);
 
 
 			return ResponseEntity.ok().body(gson.toJson(last100Transactions));
@@ -143,9 +144,13 @@ public class TransactionController {
 			String accountNo = balanceRequest.get("accountNo").getAsString();
 
 			// Fetch last 5 transactions from the database
-			Pageable pageable = PageRequest.of(0, 5, Sort.by("transactionDate").descending());
-			List<Transaction> miniStatement = transactionRepository.getMiniStatementUsingCustomerIdAndAccountNo(customerId, accountNo, pageable)
-					.orElseThrow(() -> new ResourceNotFoundException("No transactions found for customerId: " + customerId + " and accountNo: " + accountNo));
+			Pageable pageable = PageRequest.of(0, 5, Sort.by("transactionId").descending());
+			Page<Transaction> miniStatement = transactionRepository.getMiniStatementUsingCustomerIdAndAccountNo(customerId, accountNo, pageable);
+
+			if (miniStatement.isEmpty()) {
+				throw new ResourceNotFoundException("No transactions found for customerId: " + customerId + " and accountNo: " + accountNo);
+			}
+//					.orElseThrow(() -> new ResourceNotFoundException("No transactions found for customerId: " + customerId + " and accountNo: " + accountNo));
 
 			return ResponseEntity.ok().body(gson.toJson(miniStatement));
 		} catch (Exception ex) {

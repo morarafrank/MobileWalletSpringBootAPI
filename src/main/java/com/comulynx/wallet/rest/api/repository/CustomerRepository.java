@@ -28,7 +28,11 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	@Query("UPDATE Customer c SET c.firstName = :firstName WHERE c.customerId = :customerId")
 	int updateCustomerByCustomerId(@Param("firstName") String firstName, @Param("customerId") String customerId);
 
-	@Query("SELECT c FROM Customer c WHERE c.email LIKE %gmail%")
-	List<Customer> findAllCustomersWhoseEmailContainsGmail();
+//	@Query("SELECT c FROM Customer c WHERE c.email LIKE %gmail%")
+//	List<Customer> findAllCustomersWhoseEmailContainsGmail();
+
+	@Query("SELECT c FROM Customer c WHERE c.email LIKE %:emailDomain%")
+	List<Customer> findAllCustomersWhoseEmailContains(@Param("emailDomain") String emailDomain);
+
 }
 
