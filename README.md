@@ -45,7 +45,7 @@ This is an interview solution for the **Compulynx** interview..
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/username/project-name.git
+   git clone https://github.com/morarafrank/MobileWalletSpringBootAPI.git
    cd project-name
    ```
 
